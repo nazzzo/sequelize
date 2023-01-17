@@ -81,6 +81,7 @@ class BoardRepository {
         where: { boardid: id },
       });
       const hashtag = await this.Hashtag.findAll({
+        attributes: ['tagname'],
         where: { boardid: id },
       });
       return { view: view, comments: comments, liked: liked, hashtag: hashtag };
