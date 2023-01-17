@@ -33,10 +33,10 @@ class BoardService {
         throw new this.HttpException(e);
       }
     }
-    async putView(id, subject, content) {
-      console.log(`serv :`, { id, subject, content });
+    async putView(id, subject, content, hashtag) {
+      console.log(`serv :`, { id, subject, content, hashtag });
       try {
-        const view = await this.boardRepository.updateBoard({ id, subject, content });
+        const view = await this.boardRepository.updateBoard({ id, subject, content, hashtag });
         if (view < 1) throw "수정할 게시글이 없습니다";
         return view;
       } catch (e) {

@@ -102,17 +102,21 @@ class BoardRepository {
       throw new Error(e);
     }
   }
-  async updateBoard({ id, subject, content }) {
-    console.log("update :", id, subject, content);
+  async updateBoard({ id, subject, content, hashtag }) {
+    console.log("update :", id, subject, content, hashtag);
     try {
-      const update = await this.Board.update(
+      const updateBoard = await this.Board.update(
         {
           subject: subject,
           content: content,
         },
         { where: { id: id } }
       );
-      return update;
+      const addTag = hashtag.map((tagname) => this.Hash.findOrCreate({ where: { tagname } }))
+      await this.Hashtag.destroy({ where: { boardid: id } });
+      const addHashTag = hashtag.map((tagname) => this.Hashtag.create({ boardid: id, tagname }));
+      await Promise.all(addTag, addHashTag)
+      return updateBoard;
     } catch (e) {
       throw new Error(e);
     }
