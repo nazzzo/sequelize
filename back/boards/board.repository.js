@@ -8,47 +8,69 @@ class BoardRepository {
     this.Hashtag = Hashtag;
     this.sequelize = sequelize;
   }
+  // async findAll() {
+  //   try {
+  //     const findAll = await this.Board.findAll({
+  //       attributes: [
+  //         "id",
+  //         "userid",
+  //         "subject",
+  //         "createdAt",
+  //         "hit",
+  //         [
+  //           this.sequelize.fn("COUNT", this.sequelize.col("Comments.boardid")),
+  //           "commentCount",
+  //         ],
+  //         // [
+  //         //   this.sequelize.fn("COUNT", this.sequelize.col("Liked.boardid")),
+  //         //   "likeCount",
+  //         // ],
+  //       ],
+  //       include: [
+  //         {
+  //           model: this.User,
+  //           attributes: ["username"],
+  //         },
+  //         {
+  //           model: this.Comment,
+  //           attributes: [],
+  //         },
+  //         // {
+  //         //   model: this.Liked,
+  //         //   attributes: ["userid"],
+  //         // },
+  //       ],
+  //       group: ["Board.id"],
+  //       order: [["id", "DESC"]],
+  //     });
+
+  //     return findAll;
+  //   } catch (e) {
+  //     throw new Error(e);
+  //   }
+  // }
   async findAll() {
     try {
-      const findAll = await this.Board.findAll({
-        attributes: [
-          "id",
-          "userid",
-          "subject",
-          "createdAt",
-          "hit",
-          [
-            this.sequelize.fn("COUNT", this.sequelize.col("Comments.boardid")),
-            "commentCount",
-          ],
-          // [
-          //   this.sequelize.fn("COUNT", this.sequelize.col("Liked.boardid")),
-          //   "likeCount",
-          // ],
-        ],
-        include: [
-          {
-            model: this.User,
-            attributes: ["username"],
-          },
-          {
-            model: this.Comment,
-            attributes: [],
-          },
-          // {
-          //   model: this.Liked,
-          //   attributes: ["userid"],
-          // },
-        ],
-        group: ["Board.id"],
-        order: [["id", "DESC"]],
-      });
-
+      const query = `SELECT 
+      A.id,
+      A.userid, 
+      B.username, 
+      A.subject, 
+      A.createdAt, 
+      A.hit, 
+      (SELECT COUNT(boardid) FROM Comment WHERE boardid = A.id) AS commentCount, 
+      (SELECT COUNT(BoardId) FROM Liked WHERE BoardId = A.id) AS likeCount 
+      FROM Board AS A 
+      JOIN User AS B 
+      ON A.userid = B.userid 
+      ORDER BY A.id DESC;`
+      const [findAll] = await this.sequelize.query(query);
       return findAll;
     } catch (e) {
       throw new Error(e);
     }
   }
+
   async findOne(id) {
     try {
       const view = await this.Board.findOne({
